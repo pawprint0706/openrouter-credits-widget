@@ -34,6 +34,17 @@ class WidgetStore(private val context: Context) {
     suspend fun clearSnapshot() { context.widgetData.edit { it.remove(credits); it.remove(usage); it.remove(fetched); it[status] = "API 키 설정 필요"; it.remove(refreshStarted) } }
     suspend fun setRefreshing() { context.widgetData.edit { it[status] = REFRESHING_STATUS; it[refreshStarted] = System.currentTimeMillis() } }
     suspend fun setStatus(message: String) { context.widgetData.edit { it[status] = message; it.remove(refreshStarted) } }
+    suspend fun expireRefreshingIfStale(nowMillis: Long = System.currentTimeMillis()): Boolean {
+        var expired = false
+        context.widgetData.edit {
+            if (it[status] == REFRESHING_STATUS && visibleWidgetStatus(it[status], it[refreshStarted], nowMillis) == null) {
+                it.remove(status)
+                it.remove(refreshStarted)
+                expired = true
+            }
+        }
+        return expired
+    }
     suspend fun saveSettings(newInterval: RefreshInterval, newPage: StartPage) { context.widgetData.edit { it[interval] = newInterval.name; it[page] = newPage.name } }
     private inline fun <reified T : Enum<T>> enumOrDefault(value: String?, fallback: T): T = value?.let { runCatching { enumValueOf<T>(it) }.getOrNull() } ?: fallback
 }

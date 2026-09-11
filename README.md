@@ -31,6 +31,7 @@ OpenRouter Credits Widget은 OpenRouter API 키를 기기에 암호화해 저장
 - 로고 터치 시 선택된 OpenRouter 페이지 실행
 - 로고 이외의 위젯 영역 터치 시 즉시 새로고침 요청
 - 수동 새로고침이 끝날 때까지 현재 잔액 자리에 `새로고침 중` 표시
+- 화면이 꺼지거나 기기가 절전 상태에 들어가도 오래된 `새로고침 중` 표시를 OS 알람으로 자동 해제
 - WorkManager를 이용한 15분~24시간 주기 자동 새로고침
 - 크레딧, 로그, 활동 중 앱 시작 페이지 선택
 - Custom Tabs 상단 메뉴의 `앱 설정` 항목
@@ -52,14 +53,13 @@ OpenRouter Credits Widget은 OpenRouter API 키를 기기에 암호화해 저장
 
 ### 빌드
 
-Android Studio에서 프로젝트 루트를 열고 Gradle 동기화 후 `app` 구성을 실행하는 방법을 권장합니다.
-
-Windows PowerShell에서 명령줄로 빌드하려면 JDK 17 이상이 선택되어 있어야 합니다.
+Windows PowerShell에서는 저장소의 빌드 스크립트를 실행하면 단위 테스트와 디버그 APK 빌드가 함께 수행됩니다. 이 스크립트는 Android Studio 내장 JBR, `JAVA_HOME`, 시스템 Java 순서로 JDK 17 이상을 자동 탐색합니다.
 
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-.\gradlew.bat assembleDebug
+.\build.ps1
 ```
+
+특정 Gradle 작업만 실행하려면 `-Tasks`를 사용하십시오. 예: `.\build.ps1 -Tasks assembleDebug`. Android Studio는 필수가 아닙니다.
 
 디버그 APK의 기본 출력 위치는 다음과 같습니다.
 
@@ -137,8 +137,9 @@ app/src/main/java/ai/openrouter/creditswidget/
 - 붙여넣은 Authorization/Bearer 문자열 정규화
 - 시작 페이지 URL과 WorkManager 최소 주기
 - 저장된 API 키의 일반 키 및 Management 키 마스킹
+- 중단된 새로고침 상태의 만료 판정
 
-현재 개발 환경에서 단위 테스트 5개, Android 리소스 컴파일 및 Gradle 디버그 APK 빌드를 통과했습니다. Android 15 이상에서는 앱 실행 시 시스템에 생성형 위젯 미리보기를 게시하고, 이전 버전에는 XML/정적 미리보기를 제공합니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
+현재 개발 환경에서 단위 테스트 6개, Android 리소스 컴파일 및 Gradle 디버그 APK 빌드를 통과했습니다. Android 15 이상에서는 앱 실행 시 시스템에 생성형 위젯 미리보기를 게시하고, 이전 버전에는 XML/정적 미리보기를 제공합니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
 
 - Gradle 릴리스 빌드와 서명 설정
 - Google OAuth 로그인과 세션 유지
@@ -170,6 +171,7 @@ This project is not an official OpenRouter application.
 - Logo tap opens the selected OpenRouter page
 - Tapping the rest of the widget requests an immediate refresh
 - The current-balance field shows `새로고침 중` while a manual refresh is running
+- An OS alarm expires stale `새로고침 중` text after screen-off or device sleep interruptions
 - Periodic refresh intervals from 15 minutes to 24 hours using WorkManager
 - Selectable startup page: Credits, Logs, or Activity
 - Native `App settings` entry in the Custom Tabs overflow menu
@@ -191,14 +193,13 @@ The project uses Gradle Wrapper 8.13, Android Gradle Plugin 8.13.0, and Kotlin 2
 
 ### Build
 
-The recommended workflow is to open the project root in Android Studio, let Gradle sync, and run the `app` configuration.
-
-For a command-line build in Windows PowerShell, make sure JDK 17 or later is selected:
+On Windows PowerShell, the repository build script runs the unit tests and debug APK build together. It automatically looks for JDK 17 or later in the bundled Android Studio JBR, `JAVA_HOME`, and then the system Java installation.
 
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-.\gradlew.bat assembleDebug
+.\build.ps1
 ```
+
+Use `-Tasks` to run selected Gradle tasks, for example `.\build.ps1 -Tasks assembleDebug`. Android Studio is not required.
 
 The debug APK is normally written to:
 
@@ -276,8 +277,9 @@ The included JVM tests currently cover:
 - Normalization of pasted Authorization/Bearer strings
 - Startup-page URLs and the minimum periodic interval
 - Masking for regular and Management API-key formats
+- Expiration rules for interrupted refresh state
 
-Five unit tests, Android resource compilation, and the Gradle debug APK build pass in the current development environment. On Android 15 and later, the app publishes a generated widget preview when launched; older versions use the XML/static fallback previews. Before release, the following items still require Android Studio and physical-device verification:
+Six unit tests, Android resource compilation, and the Gradle debug APK build pass in the current development environment. On Android 15 and later, the app publishes a generated widget preview when launched; older versions use the XML/static fallback previews. Before release, the following items still require Android Studio and physical-device verification:
 
 - Gradle release build and signing configuration
 - Google OAuth sign-in and session persistence

@@ -24,6 +24,7 @@ class CreditsRefreshWorker(appContext: Context, params: WorkerParameters) : Coro
     override suspend fun doWork(): Result {
         val store = WidgetStore(applicationContext)
         return try {
+            RefreshTimeoutScheduler.schedule(applicationContext)
             store.setRefreshing()
             CreditsWidget().updateAll(applicationContext)
             when (CreditsRepository(applicationContext).refresh()) { RefreshResult.Retryable -> Result.retry(); else -> Result.success() }
