@@ -3,4 +3,6 @@
 local.properties
 **/build/
 *.iml
+*.jks
+keystore.properties
 design/edge-profile/

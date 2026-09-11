@@ -1,8 +1,35 @@
+import java.util.Properties
+
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id("org.jetbrains.kotlin.plugin.compose"); id("org.jetbrains.kotlin.plugin.serialization") }
+
+val defaultSigningProperties = file("${System.getProperty("user.home")}/.openrouter-credits-widget/keystore.properties")
+val signingPropertiesFile = System.getenv("OPENROUTER_SIGNING_PROPERTIES")?.let(::file) ?: defaultSigningProperties
+val signingProperties = Properties()
+val hasReleaseSigning = signingPropertiesFile.isFile
+if (hasReleaseSigning) signingPropertiesFile.inputStream().use(signingProperties::load)
+
+if (gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) } && !hasReleaseSigning) {
+    throw GradleException("Release signing properties not found: $signingPropertiesFile")
+}
 
 android { namespace = "ai.openrouter.creditswidget"
     compileSdk { version = release(36) { minorApiLevel = 1 } }
-    defaultConfig { applicationId = "ai.openrouter.creditswidget"; minSdk = 26; targetSdk = 36; versionCode = 1; versionName = "0.1.0" }
+    defaultConfig { applicationId = "ai.openrouter.creditswidget"; minSdk = 26; targetSdk = 36; versionCode = 2; versionName = "0.1.1" }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(signingProperties.getProperty("storeFile"))
+                storePassword = signingProperties.getProperty("storePassword")
+                keyAlias = signingProperties.getProperty("keyAlias")
+                keyPassword = signingProperties.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
+        }
+    }
     buildFeatures { compose = true; buildConfig = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
