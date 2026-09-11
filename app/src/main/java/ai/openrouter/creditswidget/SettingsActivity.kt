@@ -37,14 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.glance.appwidget.updateAll
 import ai.openrouter.creditswidget.data.EncryptedKeyStore
 import ai.openrouter.creditswidget.data.WidgetStore
 import ai.openrouter.creditswidget.domain.ApiKeyMasker
 import ai.openrouter.creditswidget.domain.ApiKeyNormalizer
 import ai.openrouter.creditswidget.domain.RefreshInterval
 import ai.openrouter.creditswidget.domain.StartPage
-import ai.openrouter.creditswidget.widget.CreditsWidget
 import ai.openrouter.creditswidget.worker.CreditsScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -118,22 +116,8 @@ private fun SettingsScreen(activity: SettingsActivity) {
                                     message = "새 API 키를 입력하세요"
                                 },
                                 modifier = Modifier.weight(1f),
-                            ) { Text("다시 입력") }
+                            ) { Text("키 변경하기") }
                         }
-                        TextButton(
-                            onClick = {
-                                scope.launch {
-                                    withContext(Dispatchers.IO) { EncryptedKeyStore(activity).delete() }
-                                    CreditsScheduler.schedule(activity, RefreshInterval.DISABLED)
-                                    WidgetStore(activity).clearSnapshot()
-                                    CreditsWidget().updateAll(activity)
-                                    maskedSavedKey = null
-                                    keyInput = ""
-                                    editingKey = true
-                                    message = "저장된 키를 삭제했습니다"
-                                }
-                            },
-                        ) { Text("키 삭제 후 새로 입력") }
                     }
                 }
             } else {

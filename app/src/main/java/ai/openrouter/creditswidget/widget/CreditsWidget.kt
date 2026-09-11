@@ -33,8 +33,10 @@ class CreditsWidget : GlanceAppWidget() {
             val main = ColorProvider(ai.openrouter.creditswidget.R.color.widget_primary)
             val muted = ColorProvider(ai.openrouter.creditswidget.R.color.widget_muted)
             val divider = ColorProvider(ai.openrouter.creditswidget.R.color.widget_divider)
-            Column(GlanceModifier.fillMaxSize().background(imageProvider = ImageProvider(ai.openrouter.creditswidget.R.drawable.widget_background)).appWidgetBackground().clickable(bodyAction).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                Spacer(GlanceModifier.defaultWeight())
+            Column(
+                modifier = GlanceModifier.fillMaxSize().background(imageProvider = ImageProvider(ai.openrouter.creditswidget.R.drawable.widget_background)).appWidgetBackground().clickable(bodyAction).padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.Vertical.CenterVertically,
+            ) {
                 Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Vertical.Bottom) {
                     Image(provider = ImageProvider(ai.openrouter.creditswidget.R.drawable.openrouter_logo), contentDescription = "OpenRouter", modifier = GlanceModifier.size(36.dp).clickable(actionStartActivity<MainActivity>()))
                     Spacer(GlanceModifier.width(10.dp))

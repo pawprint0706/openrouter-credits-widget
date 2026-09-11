@@ -34,7 +34,7 @@ OpenRouter Credits Widget은 OpenRouter API 키를 기기에 암호화해 저장
 - 크레딧, 로그, 활동 중 앱 시작 페이지 선택
 - Custom Tabs 상단 메뉴의 `앱 설정` 항목
 - Android Keystore와 AES-256-GCM을 이용한 API 키 암호화
-- 저장된 API 키의 읽기 전용 마스킹 표시와 유지·재입력·삭제 흐름
+- 저장된 API 키의 읽기 전용 마스킹 표시와 유지·변경 흐름
 - 공식 OpenRouter 로고 기반 앱 아이콘과 위젯 선택기 미리보기
 - 네트워크 오류 시 마지막 성공 값을 보존하는 캐시
 
@@ -78,7 +78,7 @@ API 키나 서명 정보는 저장소에 포함되어 있지 않습니다. 로�
 
 1. 앱을 실행합니다. 기본적으로 OpenRouter 크레딧 페이지가 Custom Tab으로 열립니다.
 2. 상단 우측 `⋮` 메뉴에서 `앱 설정`을 선택합니다.
-3. OpenRouter API 키를 입력하고 `확인 및 저장`을 누릅니다. 저장 후에는 마스킹된 키가 읽기 전용으로 표시되며, 현재 키 유지·다시 입력·삭제 후 새 입력 중 하나를 선택할 수 있습니다.
+3. OpenRouter API 키를 입력하고 `확인 및 저장`을 누릅니다. 저장 후에는 마스킹된 키가 읽기 전용으로 표시되며, 현재 키를 유지하거나 새 키로 변경할 수 있습니다. 새 키가 저장되기 전까지 기존 키는 유지됩니다.
 4. 자동 새로고침 주기와 시작 페이지를 선택합니다.
 5. Android 위젯 선택 화면에서 **OpenRouter Credits** 위젯을 홈 화면에 추가합니다.
 6. 위젯 본문을 누르면 새로고침하고, 좌측 로고를 누르면 앱을 실행합니다.
@@ -172,7 +172,7 @@ This project is not an official OpenRouter application.
 - Selectable startup page: Credits, Logs, or Activity
 - Native `App settings` entry in the Custom Tabs overflow menu
 - API-key encryption using Android Keystore and AES-256-GCM
-- Read-only masked-key confirmation with keep, replace, and remove flows
+- Read-only masked-key confirmation with keep and replace flows
 - App icon and widget-picker preview based on the official OpenRouter mark
 - Last-successful-value cache retained during transient network failures
 
@@ -216,7 +216,7 @@ No API keys or signing credentials are included in the repository. If a local SD
 
 1. Launch the app. It opens the OpenRouter Credits page in a Custom Tab by default.
 2. Select `App settings` from the top-right `⋮` menu.
-3. Enter an OpenRouter API key and tap the save button. After saving, the masked key is shown read-only with actions to keep, replace, or remove it before entering a new key.
+3. Enter an OpenRouter API key and tap the save button. After saving, the masked key is shown read-only with actions to keep or replace it. The existing key remains active until a valid replacement is saved.
 4. Choose the periodic refresh interval and startup page.
 5. Add the **OpenRouter Credits** widget from the Android widget picker.
 6. Tap the widget body to refresh, or tap the logo to open the app.
