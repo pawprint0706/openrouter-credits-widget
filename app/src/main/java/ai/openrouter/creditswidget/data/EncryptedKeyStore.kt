@@ -19,7 +19,18 @@ class EncryptedKeyStore(context: Context) {
         return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").apply { init(KeyGenParameterSpec.Builder("openrouter_api_key", KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build()) }.generateKey()
     }
     fun save(value: String) { val c = Cipher.getInstance("AES/GCM/NoPadding"); c.init(Cipher.ENCRYPT_MODE, key()); prefs.edit().putString("blob", Base64.encodeToString(c.iv, Base64.NO_WRAP) + "." + Base64.encodeToString(c.doFinal(value.toByteArray()), Base64.NO_WRAP)).apply() }
-    fun read(): String? = try { val parts = prefs.getString("blob", null)?.split('.') ?: return null; if (parts.size != 2) return null; val c = Cipher.getInstance("AES/GCM/NoPadding"); c.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, Base64.decode(parts[0], Base64.NO_WRAP))); String(c.doFinal(Base64.decode(parts[1], Base64.NO_WRAP))) } catch (_: Exception) { delete(); null }
+    fun read(): String? {
+        return try {
+            val parts = prefs.getString("blob", null)?.split('.') ?: return null
+            if (parts.size != 2) return null
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, Base64.decode(parts[0], Base64.NO_WRAP)))
+            String(cipher.doFinal(Base64.decode(parts[1], Base64.NO_WRAP)))
+        } catch (_: Exception) {
+            delete()
+            null
+        }
+    }
     fun delete() { prefs.edit().clear().apply() }
     fun exists() = read() != null
 }

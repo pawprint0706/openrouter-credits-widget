@@ -134,9 +134,9 @@ app/src/main/java/ai/openrouter/creditswidget/
 - 붙여넣은 Authorization/Bearer 문자열 정규화
 - 시작 페이지 URL과 WorkManager 최소 주기
 
-현재 개발 환경에서 단위 테스트 4개와 Android 리소스 컴파일을 통과했습니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
+현재 개발 환경에서 단위 테스트 4개, Android 리소스 컴파일 및 Gradle 디버그 APK 빌드를 통과했습니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
 
-- 전체 Gradle 디버그/릴리스 빌드
+- Gradle 릴리스 빌드와 서명 설정
 - Google OAuth 로그인과 세션 유지
 - Chrome 및 다른 Custom Tabs 브라우저
 - 제조사별 런처의 4×1 크기, 글꼴 배율 및 터치 영역
@@ -269,9 +269,9 @@ The included JVM tests currently cover:
 - Normalization of pasted Authorization/Bearer strings
 - Startup-page URLs and the minimum periodic interval
 
-Four unit tests and Android resource compilation pass in the current development environment. Before release, the following items still require Android Studio and physical-device verification:
+Four unit tests, Android resource compilation, and the Gradle debug APK build pass in the current development environment. Before release, the following items still require Android Studio and physical-device verification:
 
-- Complete Gradle debug and release builds
+- Gradle release build and signing configuration
 - Google OAuth sign-in and session persistence
 - Chrome and other Custom Tabs-capable browsers
 - Fixed 4×1 sizing, font scaling, and tap targets across launcher vendors

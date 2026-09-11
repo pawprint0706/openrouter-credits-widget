@@ -3,6 +3,7 @@ package ai.openrouter.creditswidget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.glance.appwidget.updateAll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
 import ai.openrouter.creditswidget.data.EncryptedKeyStore
 import ai.openrouter.creditswidget.data.WidgetStore
 import ai.openrouter.creditswidget.domain.ApiKeyNormalizer
@@ -22,7 +22,7 @@ import ai.openrouter.creditswidget.widget.CreditsWidget
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
-    override fun onCreate(state: Bundle?) { super.onCreate(state); setContent { val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(); MaterialTheme(colorScheme = colors) { SettingsScreen(this) } } }
+    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); setContent { val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(); MaterialTheme(colorScheme = colors) { SettingsScreen(this) } } }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun SettingsScreen(activity: SettingsActivity) {

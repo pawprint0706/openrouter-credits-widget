@@ -1,6 +1,7 @@
 package ai.openrouter.creditswidget.data
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import ai.openrouter.creditswidget.domain.RefreshResult
 import ai.openrouter.creditswidget.widget.CreditsWidget
 import kotlinx.coroutines.Dispatchers
