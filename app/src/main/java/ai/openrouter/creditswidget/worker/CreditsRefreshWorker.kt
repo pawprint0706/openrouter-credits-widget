@@ -23,5 +23,5 @@ object CreditsScheduler {
     private const val PERIODIC = "openrouter-credits-periodic"; private const val NOW = "openrouter-credits-now"
     private val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
     fun schedule(context: Context, interval: RefreshInterval) { val manager = WorkManager.getInstance(context); if (interval == RefreshInterval.DISABLED) { manager.cancelUniqueWork(PERIODIC); return }; val request = PeriodicWorkRequestBuilder<CreditsRefreshWorker>(interval.minutes, TimeUnit.MINUTES).setConstraints(constraints).setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES).build(); manager.enqueueUniquePeriodicWork(PERIODIC, ExistingPeriodicWorkPolicy.UPDATE, request) }
-    fun refreshNow(context: Context) { val request = OneTimeWorkRequestBuilder<CreditsRefreshWorker>().setConstraints(constraints).setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES).build(); WorkManager.getInstance(context).enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, request) }
+    fun refreshNow(context: Context) { val request = OneTimeWorkRequestBuilder<CreditsRefreshWorker>().setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES).build(); WorkManager.getInstance(context).enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, request) }
 }

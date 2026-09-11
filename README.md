@@ -30,6 +30,7 @@ OpenRouter Credits Widget은 OpenRouter API 키를 기기에 암호화해 저장
 - 시스템 라이트/다크 모드에 대응하는 위젯 배경과 텍스트
 - 로고 터치 시 선택된 OpenRouter 페이지 실행
 - 로고 이외의 위젯 영역 터치 시 즉시 새로고침 요청
+- 수동 새로고침이 끝날 때까지 현재 잔액 자리에 `새로고침 중` 표시
 - WorkManager를 이용한 15분~24시간 주기 자동 새로고침
 - 크레딧, 로그, 활동 중 앱 시작 페이지 선택
 - Custom Tabs 상단 메뉴의 `앱 설정` 항목
@@ -168,6 +169,7 @@ This project is not an official OpenRouter application.
 - Light and dark widget colors that follow the system theme
 - Logo tap opens the selected OpenRouter page
 - Tapping the rest of the widget requests an immediate refresh
+- The current-balance field shows `새로고침 중` while a manual refresh is running
 - Periodic refresh intervals from 15 minutes to 24 hours using WorkManager
 - Selectable startup page: Credits, Logs, or Activity
 - Native `App settings` entry in the Custom Tabs overflow menu

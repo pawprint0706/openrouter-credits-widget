@@ -10,7 +10,11 @@ import kotlinx.coroutines.withContext
 class CreditsRepository(private val context: Context) {
     private val keys = EncryptedKeyStore(context); private val store = WidgetStore(context); private val api = OpenRouterApi()
     suspend fun refresh(): RefreshResult = withContext(Dispatchers.IO) {
-        val key = keys.read() ?: return@withContext RefreshResult.NoKey
+        val key = keys.read() ?: run {
+            store.clearSnapshot()
+            CreditsWidget().updateAll(context)
+            return@withContext RefreshResult.NoKey
+        }
         when (val result = api.credits(key)) {
             is ApiOutcome.Success -> { store.saveSnapshot(result.snapshot); RefreshResult.Success }
             ApiOutcome.Unauthorized -> { keys.delete(); store.clearSnapshot(); RefreshResult.Unauthorized }

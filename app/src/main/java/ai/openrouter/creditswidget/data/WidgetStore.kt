@@ -11,6 +11,7 @@ import ai.openrouter.creditswidget.domain.StartPage
 import kotlinx.coroutines.flow.first
 
 private val Context.widgetData by preferencesDataStore("widget_data")
+const val REFRESHING_STATUS = "새로고침 중"
 data class WidgetState(val snapshot: CreditsSnapshot?, val message: String?, val interval: RefreshInterval, val startPage: StartPage)
 class WidgetStore(private val context: Context) {
     private val credits = stringPreferencesKey("credits"); private val usage = stringPreferencesKey("usage"); private val fetched = longPreferencesKey("fetched"); private val status = stringPreferencesKey("status"); private val interval = stringPreferencesKey("interval"); private val page = stringPreferencesKey("page")
