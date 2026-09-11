@@ -1,0 +1,5 @@
+<resources>
+    <color name="widget_primary">#F5F0FA</color>
+    <color name="widget_muted">#B8B2C0</color>
+    <color name="widget_divider">#5A5560</color>
+</resources>

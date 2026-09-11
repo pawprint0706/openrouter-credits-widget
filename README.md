@@ -34,6 +34,8 @@ OpenRouter Credits Widget은 OpenRouter API 키를 기기에 암호화해 저장
 - 크레딧, 로그, 활동 중 앱 시작 페이지 선택
 - Custom Tabs 상단 메뉴의 `앱 설정` 항목
 - Android Keystore와 AES-256-GCM을 이용한 API 키 암호화
+- 저장된 API 키의 읽기 전용 마스킹 표시와 유지·재입력·삭제 흐름
+- 공식 OpenRouter 로고 기반 앱 아이콘과 위젯 선택기 미리보기
 - 네트워크 오류 시 마지막 성공 값을 보존하는 캐시
 
 ### 요구 환경
@@ -76,7 +78,7 @@ API 키나 서명 정보는 저장소에 포함되어 있지 않습니다. 로�
 
 1. 앱을 실행합니다. 기본적으로 OpenRouter 크레딧 페이지가 Custom Tab으로 열립니다.
 2. 상단 우측 `⋮` 메뉴에서 `앱 설정`을 선택합니다.
-3. OpenRouter API 키를 입력하고 `확인 및 저장`을 누릅니다.
+3. OpenRouter API 키를 입력하고 `확인 및 저장`을 누릅니다. 저장 후에는 마스킹된 키가 읽기 전용으로 표시되며, 현재 키 유지·다시 입력·삭제 후 새 입력 중 하나를 선택할 수 있습니다.
 4. 자동 새로고침 주기와 시작 페이지를 선택합니다.
 5. Android 위젯 선택 화면에서 **OpenRouter Credits** 위젯을 홈 화면에 추가합니다.
 6. 위젯 본문을 누르면 새로고침하고, 좌측 로고를 누르면 앱을 실행합니다.
@@ -133,8 +135,9 @@ app/src/main/java/ai/openrouter/creditswidget/
 - 잘못된 API 응답 거부
 - 붙여넣은 Authorization/Bearer 문자열 정규화
 - 시작 페이지 URL과 WorkManager 최소 주기
+- 저장된 API 키의 일반 키 및 Management 키 마스킹
 
-현재 개발 환경에서 단위 테스트 4개, Android 리소스 컴파일 및 Gradle 디버그 APK 빌드를 통과했습니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
+현재 개발 환경에서 단위 테스트 5개, Android 리소스 컴파일 및 Gradle 디버그 APK 빌드를 통과했습니다. Android 15 이상에서는 앱 실행 시 시스템에 생성형 위젯 미리보기를 게시하고, 이전 버전에는 XML/정적 미리보기를 제공합니다. 다만 실제 출시 전에는 다음 항목을 Android Studio와 실기기에서 추가 검증해야 합니다.
 
 - Gradle 릴리스 빌드와 서명 설정
 - Google OAuth 로그인과 세션 유지
@@ -169,6 +172,8 @@ This project is not an official OpenRouter application.
 - Selectable startup page: Credits, Logs, or Activity
 - Native `App settings` entry in the Custom Tabs overflow menu
 - API-key encryption using Android Keystore and AES-256-GCM
+- Read-only masked-key confirmation with keep, replace, and remove flows
+- App icon and widget-picker preview based on the official OpenRouter mark
 - Last-successful-value cache retained during transient network failures
 
 ### Requirements
@@ -211,7 +216,7 @@ No API keys or signing credentials are included in the repository. If a local SD
 
 1. Launch the app. It opens the OpenRouter Credits page in a Custom Tab by default.
 2. Select `App settings` from the top-right `⋮` menu.
-3. Enter an OpenRouter API key and tap the save button.
+3. Enter an OpenRouter API key and tap the save button. After saving, the masked key is shown read-only with actions to keep, replace, or remove it before entering a new key.
 4. Choose the periodic refresh interval and startup page.
 5. Add the **OpenRouter Credits** widget from the Android widget picker.
 6. Tap the widget body to refresh, or tap the logo to open the app.
@@ -268,8 +273,9 @@ The included JVM tests currently cover:
 - Rejection of malformed API responses
 - Normalization of pasted Authorization/Bearer strings
 - Startup-page URLs and the minimum periodic interval
+- Masking for regular and Management API-key formats
 
-Four unit tests, Android resource compilation, and the Gradle debug APK build pass in the current development environment. Before release, the following items still require Android Studio and physical-device verification:
+Five unit tests, Android resource compilation, and the Gradle debug APK build pass in the current development environment. On Android 15 and later, the app publishes a generated widget preview when launched; older versions use the XML/static fallback previews. Before release, the following items still require Android Studio and physical-device verification:
 
 - Gradle release build and signing configuration
 - Google OAuth sign-in and session persistence

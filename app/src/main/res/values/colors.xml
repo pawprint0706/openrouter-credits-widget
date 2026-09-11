@@ -1,0 +1,6 @@
+<resources>
+    <color name="openrouter_purple">#7624F4</color>
+    <color name="widget_primary">#1D1B20</color>
+    <color name="widget_muted">#6D6875</color>
+    <color name="widget_divider">#D8D2DF</color>
+</resources>

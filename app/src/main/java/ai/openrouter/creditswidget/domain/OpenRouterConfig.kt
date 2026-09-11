@@ -16,3 +16,16 @@ object ApiKeyNormalizer {
         return value.takeIf { it.length >= 30 && !it.any(Char::isWhitespace) && pattern.matches(it) }
     }
 }
+
+object ApiKeyMasker {
+    fun mask(value: String): String {
+        val trimmed = value.trim()
+        val prefix = when {
+            trimmed.startsWith("sk-or-mgmt-") -> "sk-or-mgmt-"
+            trimmed.startsWith("sk-or-v1-") -> "sk-or-v1-"
+            trimmed.startsWith("sk-or-") -> "sk-or-"
+            else -> ""
+        }
+        return prefix + "••••••••" + trimmed.takeLast(4)
+    }
+}
