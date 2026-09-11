@@ -62,7 +62,7 @@ class CreditsWidget : GlanceAppWidget() {
 class CreditsWidgetReceiver : GlanceAppWidgetReceiver() { override val glanceAppWidget: GlanceAppWidget = CreditsWidget() }
 class RefreshAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        WidgetStore(context).setStatus(REFRESHING_STATUS)
+        // Re-render first so a stale persisted indicator from an interrupted worker can expire.
         CreditsWidget().updateAll(context)
         CreditsScheduler.refreshNow(context)
     }
