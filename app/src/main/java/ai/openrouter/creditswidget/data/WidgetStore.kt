@@ -1,6 +1,7 @@
 package ai.openrouter.creditswidget.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -11,40 +12,29 @@ import ai.openrouter.creditswidget.domain.StartPage
 import kotlinx.coroutines.flow.first
 
 private val Context.widgetData by preferencesDataStore("widget_data")
-const val REFRESHING_STATUS = "새로고침 중"
-internal const val REFRESHING_STATUS_TIMEOUT_MILLIS = 30_000L
 
-internal fun visibleWidgetStatus(status: String?, refreshStartedAt: Long?, nowMillis: Long): String? =
-    if (status == REFRESHING_STATUS &&
-        (refreshStartedAt == null || nowMillis < refreshStartedAt || nowMillis - refreshStartedAt >= REFRESHING_STATUS_TIMEOUT_MILLIS)
-    ) null else status
+/** A last known balance always outranks a status message, so a stale render can never hide the amount. */
+internal fun widgetPrimaryText(snapshot: CreditsSnapshot?, message: String?): String = when {
+    snapshot != null -> snapshot.dollars(snapshot.remainingCredits)
+    message != null -> message
+    else -> "API 키 설정 필요"
+}
 
-data class WidgetState(val snapshot: CreditsSnapshot?, val message: String?, val interval: RefreshInterval, val startPage: StartPage)
+data class WidgetState(val snapshot: CreditsSnapshot?, val message: String?, val interval: RefreshInterval, val startPage: StartPage, val notifyOnRefresh: Boolean)
 class WidgetStore(private val context: Context) {
-    private val credits = stringPreferencesKey("credits"); private val usage = stringPreferencesKey("usage"); private val fetched = longPreferencesKey("fetched"); private val status = stringPreferencesKey("status"); private val refreshStarted = longPreferencesKey("refresh_started"); private val interval = stringPreferencesKey("interval"); private val page = stringPreferencesKey("page")
+    private val credits = stringPreferencesKey("credits"); private val usage = stringPreferencesKey("usage"); private val fetched = longPreferencesKey("fetched"); private val status = stringPreferencesKey("status"); private val interval = stringPreferencesKey("interval"); private val page = stringPreferencesKey("page"); private val notify = booleanPreferencesKey("notify")
     suspend fun state(): WidgetState {
         val p = context.widgetData.data.first()
         val totalCredits = p[credits]?.toBigDecimalOrNull()
         val totalUsage = p[usage]?.toBigDecimalOrNull()
         val fetchedAt = p[fetched]
         val snapshot = if (totalCredits != null && totalUsage != null && fetchedAt != null) CreditsSnapshot(totalCredits, totalUsage, fetchedAt) else null
-        return WidgetState(snapshot, visibleWidgetStatus(p[status], p[refreshStarted], System.currentTimeMillis()), enumOrDefault(p[interval], RefreshInterval.HOUR_1), enumOrDefault(p[page], StartPage.CREDITS))
+        return WidgetState(snapshot, p[status], enumOrDefault(p[interval], RefreshInterval.HOUR_1), enumOrDefault(p[page], StartPage.CREDITS), p[notify] ?: false)
     }
-    suspend fun saveSnapshot(s: CreditsSnapshot) { context.widgetData.edit { it[credits] = s.totalCredits.toPlainString(); it[usage] = s.totalUsage.toPlainString(); it[fetched] = s.fetchedAtMillis; it.remove(status); it.remove(refreshStarted) } }
-    suspend fun clearSnapshot() { context.widgetData.edit { it.remove(credits); it.remove(usage); it.remove(fetched); it[status] = "API 키 설정 필요"; it.remove(refreshStarted) } }
-    suspend fun setRefreshing() { context.widgetData.edit { it[status] = REFRESHING_STATUS; it[refreshStarted] = System.currentTimeMillis() } }
-    suspend fun setStatus(message: String) { context.widgetData.edit { it[status] = message; it.remove(refreshStarted) } }
-    suspend fun expireRefreshingIfStale(nowMillis: Long = System.currentTimeMillis()): Boolean {
-        var expired = false
-        context.widgetData.edit {
-            if (it[status] == REFRESHING_STATUS && visibleWidgetStatus(it[status], it[refreshStarted], nowMillis) == null) {
-                it.remove(status)
-                it.remove(refreshStarted)
-                expired = true
-            }
-        }
-        return expired
-    }
+    suspend fun saveSnapshot(s: CreditsSnapshot) { context.widgetData.edit { it[credits] = s.totalCredits.toPlainString(); it[usage] = s.totalUsage.toPlainString(); it[fetched] = s.fetchedAtMillis; it.remove(status) } }
+    suspend fun clearSnapshot() { context.widgetData.edit { it.remove(credits); it.remove(usage); it.remove(fetched); it[status] = "API 키 설정 필요" } }
+    suspend fun setStatus(message: String) { context.widgetData.edit { it[status] = message } }
+    suspend fun saveNotifyOnRefresh(enabled: Boolean) { context.widgetData.edit { it[notify] = enabled } }
     suspend fun saveSettings(newInterval: RefreshInterval, newPage: StartPage) { context.widgetData.edit { it[interval] = newInterval.name; it[page] = newPage.name } }
     private inline fun <reified T : Enum<T>> enumOrDefault(value: String?, fallback: T): T = value?.let { runCatching { enumValueOf<T>(it) }.getOrNull() } ?: fallback
 }

@@ -13,7 +13,6 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.updateAll
 import androidx.glance.layout.*
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -22,8 +21,8 @@ import androidx.glance.unit.ColorProvider
 import ai.openrouter.creditswidget.MainActivity
 import ai.openrouter.creditswidget.SettingsActivity
 import ai.openrouter.creditswidget.data.EncryptedKeyStore
-import ai.openrouter.creditswidget.data.REFRESHING_STATUS
 import ai.openrouter.creditswidget.data.WidgetStore
+import ai.openrouter.creditswidget.data.widgetPrimaryText
 import ai.openrouter.creditswidget.worker.CreditsScheduler
 
 class CreditsWidget : GlanceAppWidget() {
@@ -44,12 +43,7 @@ class CreditsWidget : GlanceAppWidget() {
                     Spacer(GlanceModifier.width(10.dp))
                     Box(GlanceModifier.width(1.dp).height(36.dp).background(divider)) {}
                     Spacer(GlanceModifier.width(10.dp))
-                    val primaryText = when {
-                        state.message == REFRESHING_STATUS -> REFRESHING_STATUS
-                        state.snapshot == null -> state.message ?: "API 키 설정 필요"
-                        else -> state.snapshot.dollars(state.snapshot.remainingCredits)
-                    }
-                    Text(primaryText, style = TextStyle(color = main, fontWeight = FontWeight.Bold, fontSize = 28.sp), modifier = GlanceModifier.defaultWeight(), maxLines = 1)
+                    Text(widgetPrimaryText(state.snapshot, state.message), style = TextStyle(color = main, fontWeight = FontWeight.Bold, fontSize = 28.sp), modifier = GlanceModifier.defaultWeight(), maxLines = 1)
                     if (state.snapshot != null) {
                         Spacer(GlanceModifier.width(8.dp))
                         Text("누적 충전  " + state.snapshot.dollars(state.snapshot.totalCredits), style = TextStyle(color = muted, fontSize = 14.sp), maxLines = 1)
@@ -62,8 +56,6 @@ class CreditsWidget : GlanceAppWidget() {
 class CreditsWidgetReceiver : GlanceAppWidgetReceiver() { override val glanceAppWidget: GlanceAppWidget = CreditsWidget() }
 class RefreshAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        // Re-render first so a stale persisted indicator from an interrupted worker can expire.
-        CreditsWidget().updateAll(context)
         CreditsScheduler.refreshNow(context)
     }
 }

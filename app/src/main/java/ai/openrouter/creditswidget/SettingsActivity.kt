@@ -1,8 +1,12 @@
 package ai.openrouter.creditswidget
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -33,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -49,12 +55,31 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SettingsActivity : ComponentActivity() {
+    private var permissionResult: ((Boolean) -> Unit)? = null
+
+    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        permissionResult?.invoke(granted)
+        permissionResult = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
             MaterialTheme(colorScheme = colors) { SettingsScreen(this) }
         }
+    }
+
+    fun notificationsAllowed() = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+    /** Android suppresses toasts from apps whose notifications are disabled, and that state is per app, not per toast. */
+    fun requestNotificationPermission(onResult: (Boolean) -> Unit) {
+        if (notificationsAllowed()) {
+            onResult(true)
+            return
+        }
+        permissionResult = onResult
+        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
 
@@ -71,11 +96,13 @@ private fun SettingsScreen(activity: SettingsActivity) {
     var page by remember { mutableStateOf(StartPage.CREDITS) }
     var intervalOpen by remember { mutableStateOf(false) }
     var pageOpen by remember { mutableStateOf(false) }
+    var notifyToast by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val saved = WidgetStore(activity).state()
         interval = saved.interval
         page = saved.startPage
+        notifyToast = saved.notifyOnRefresh && activity.notificationsAllowed()
         val storedKey = withContext(Dispatchers.IO) { EncryptedKeyStore(activity).read() }
         maskedSavedKey = storedKey?.let(ApiKeyMasker::mask)
         editingKey = storedKey == null
@@ -204,6 +231,24 @@ private fun SettingsScreen(activity: SettingsActivity) {
             }
 
             Text("절전 모드에서는 새로고침 시각이 지연될 수 있습니다.", style = MaterialTheme.typography.bodySmall)
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = notifyToast,
+                    onCheckedChange = { checked ->
+                        if (checked) {
+                            activity.requestNotificationPermission { granted ->
+                                notifyToast = granted
+                                scope.launch { WidgetStore(activity).saveNotifyOnRefresh(granted) }
+                                if (!granted) message = "알림 권한이 없어 토스트를 표시할 수 없습니다"
+                            }
+                        } else {
+                            notifyToast = false
+                            scope.launch { WidgetStore(activity).saveNotifyOnRefresh(false) }
+                        }
+                    },
+                )
+                Text("새로고침 완료를 토스트로 표시", style = MaterialTheme.typography.bodyMedium)
+            }
             Button(onClick = { CreditsScheduler.refreshNow(activity); message = "지금 갱신을 요청했습니다" }) {
                 Text("지금 새로고침")
             }

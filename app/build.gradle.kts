@@ -14,7 +14,7 @@ if (gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = tr
 
 android { namespace = "ai.openrouter.creditswidget"
     compileSdk { version = release(36) { minorApiLevel = 1 } }
-    defaultConfig { applicationId = "ai.openrouter.creditswidget"; minSdk = 26; targetSdk = 36; versionCode = 2; versionName = "0.1.1" }
+    defaultConfig { applicationId = "ai.openrouter.creditswidget"; minSdk = 26; targetSdk = 36; versionCode = 3; versionName = "0.1.2" }
     signingConfigs {
         if (hasReleaseSigning) {
             create("release") {

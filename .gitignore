@@ -7,3 +7,4 @@ local.properties
 *.jks
 keystore.properties
 design/edge-profile/
+.DS_Store
