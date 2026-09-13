@@ -1,9 +1,11 @@
 package ai.openrouter.creditswidget
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +42,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -81,11 +85,17 @@ class SettingsActivity : ComponentActivity() {
         permissionResult = onResult
         notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
+
+    /** Needed when the permission is permanently denied and the system no longer shows its dialog. */
+    fun openNotificationSettings() {
+        runCatching { startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)) }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsScreen(activity: SettingsActivity) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var keyInput by remember { mutableStateOf("") }
     var showKey by remember { mutableStateOf(false) }
@@ -97,6 +107,7 @@ private fun SettingsScreen(activity: SettingsActivity) {
     var intervalOpen by remember { mutableStateOf(false) }
     var pageOpen by remember { mutableStateOf(false) }
     var notifyToast by remember { mutableStateOf(false) }
+    var notificationsAllowed by remember { mutableStateOf(activity.notificationsAllowed()) }
 
     LaunchedEffect(Unit) {
         val saved = WidgetStore(activity).state()
@@ -108,12 +119,12 @@ private fun SettingsScreen(activity: SettingsActivity) {
         editingKey = storedKey == null
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("OpenRouter 위젯 설정") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.settings_title)) }) }) { padding ->
         Column(
             modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text("OpenRouter API 키", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.settings_api_key), style = MaterialTheme.typography.titleMedium)
 
             if (maskedSavedKey != null && !editingKey) {
                 ElevatedCard(modifier = Modifier.fillMaxWidth()) {
@@ -121,29 +132,29 @@ private fun SettingsScreen(activity: SettingsActivity) {
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text("API 키 저장됨", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.settings_key_saved), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                         OutlinedTextField(
                             value = maskedSavedKey.orEmpty(),
                             onValueChange = {},
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true,
                             singleLine = true,
-                            label = { Text("현재 저장된 키") },
+                            label = { Text(stringResource(R.string.settings_current_key)) },
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Button(onClick = { activity.finish() }, modifier = Modifier.weight(1f)) { Text("현재 키 유지") }
+                            Button(onClick = { activity.finish() }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.settings_keep_key)) }
                             OutlinedButton(
                                 onClick = {
                                     keyInput = ""
                                     showKey = false
                                     editingKey = true
-                                    message = "새 API 키를 입력하세요"
+                                    message = context.getString(R.string.settings_enter_new_key)
                                 },
                                 modifier = Modifier.weight(1f),
-                            ) { Text("키 변경하기") }
+                            ) { Text(stringResource(R.string.settings_change_key)) }
                         }
                     }
                 }
@@ -152,11 +163,11 @@ private fun SettingsScreen(activity: SettingsActivity) {
                     value = keyInput,
                     onValueChange = { keyInput = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("sk-or-…") },
+                    label = { Text(stringResource(R.string.settings_key_hint)) },
                     singleLine = true,
                     visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        TextButton(onClick = { showKey = !showKey }) { Text(if (showKey) "숨김" else "표시") }
+                        TextButton(onClick = { showKey = !showKey }) { Text(stringResource(if (showKey) R.string.settings_hide else R.string.settings_show)) }
                     },
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -164,7 +175,7 @@ private fun SettingsScreen(activity: SettingsActivity) {
                         onClick = {
                             val normalized = ApiKeyNormalizer.normalize(keyInput)
                             if (normalized == null) {
-                                message = "올바른 sk-or- API 키를 입력하세요"
+                                message = context.getString(R.string.settings_invalid_key)
                             } else {
                                 scope.launch {
                                     withContext(Dispatchers.IO) { EncryptedKeyStore(activity).save(normalized) }
@@ -175,31 +186,31 @@ private fun SettingsScreen(activity: SettingsActivity) {
                                     keyInput = ""
                                     showKey = false
                                     editingKey = false
-                                    message = "API 키를 저장하고 갱신을 시작했습니다"
+                                    message = context.getString(R.string.settings_key_stored)
                                 }
                             }
                         },
-                    ) { Text("확인 및 저장") }
+                    ) { Text(stringResource(R.string.settings_save)) }
                     if (maskedSavedKey != null) {
                         OutlinedButton(
                             onClick = {
                                 keyInput = ""
                                 showKey = false
                                 editingKey = false
-                                message = "기존 API 키를 유지합니다"
+                                message = context.getString(R.string.settings_key_kept)
                             },
-                        ) { Text("취소") }
+                        ) { Text(stringResource(R.string.settings_cancel)) }
                     }
                 }
             }
 
-            Text("자동 새로고침", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.settings_auto_refresh), style = MaterialTheme.typography.titleMedium)
             Box {
-                OutlinedButton(onClick = { intervalOpen = true }) { Text(interval.label) }
+                OutlinedButton(onClick = { intervalOpen = true }) { Text(stringResource(interval.labelRes)) }
                 DropdownMenu(expanded = intervalOpen, onDismissRequest = { intervalOpen = false }) {
                     RefreshInterval.entries.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(option.label) },
+                            text = { Text(stringResource(option.labelRes)) },
                             onClick = {
                                 interval = option
                                 intervalOpen = false
@@ -213,13 +224,13 @@ private fun SettingsScreen(activity: SettingsActivity) {
                 }
             }
 
-            Text("앱 시작 페이지", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.settings_start_page), style = MaterialTheme.typography.titleMedium)
             Box {
-                OutlinedButton(onClick = { pageOpen = true }) { Text(page.label) }
+                OutlinedButton(onClick = { pageOpen = true }) { Text(stringResource(page.labelRes)) }
                 DropdownMenu(expanded = pageOpen, onDismissRequest = { pageOpen = false }) {
                     StartPage.entries.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(option.label) },
+                            text = { Text(stringResource(option.labelRes)) },
                             onClick = {
                                 page = option
                                 pageOpen = false
@@ -230,16 +241,17 @@ private fun SettingsScreen(activity: SettingsActivity) {
                 }
             }
 
-            Text("절전 모드에서는 새로고침 시각이 지연될 수 있습니다.", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.settings_battery_note), style = MaterialTheme.typography.bodySmall)
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = notifyToast,
                     onCheckedChange = { checked ->
                         if (checked) {
                             activity.requestNotificationPermission { granted ->
+                                notificationsAllowed = activity.notificationsAllowed()
                                 notifyToast = granted
                                 scope.launch { WidgetStore(activity).saveNotifyOnRefresh(granted) }
-                                if (!granted) message = "알림 권한이 없어 토스트를 표시할 수 없습니다"
+                                if (!granted) message = context.getString(R.string.settings_toast_denied)
                             }
                         } else {
                             notifyToast = false
@@ -247,10 +259,13 @@ private fun SettingsScreen(activity: SettingsActivity) {
                         }
                     },
                 )
-                Text("새로고침 완료를 토스트로 표시", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.settings_toast_checkbox), style = MaterialTheme.typography.bodyMedium)
             }
-            Button(onClick = { CreditsScheduler.refreshNow(activity); message = "지금 갱신을 요청했습니다" }) {
-                Text("지금 새로고침")
+            if (!notificationsAllowed) {
+                OutlinedButton(onClick = { activity.openNotificationSettings() }) { Text(stringResource(R.string.settings_open_system_settings)) }
+            }
+            Button(onClick = { CreditsScheduler.refreshNow(activity); message = context.getString(R.string.settings_refresh_requested) }) {
+                Text(stringResource(R.string.settings_refresh_now))
             }
             if (message.isNotEmpty()) Text(message, color = MaterialTheme.colorScheme.primary)
         }

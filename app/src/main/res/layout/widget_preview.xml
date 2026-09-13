@@ -41,7 +41,7 @@
         android:fontFamily="sans"
         android:includeFontPadding="false"
         android:maxLines="1"
-        android:text="누적 충전  $100.50"
+        android:text="@string/widget_preview_cumulative"
         android:textColor="@color/widget_muted"
         android:textSize="14sp" />
 </LinearLayout>

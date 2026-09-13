@@ -1,3 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_description">현재 OpenRouter 잔액과 누적 충전액</string>
+    <string name="widget_description">Current OpenRouter balance and total topped up</string>
+    <string name="widget_cumulative">"Total topped up  %1$s"</string>
+    <string name="widget_status_needs_key">API key required</string>
+    <string name="widget_status_offline">Offline or error</string>
+    <string name="widget_status_different_key">Different key required</string>
+    <string name="widget_status_response_error">Response error</string>
+    <string name="widget_preview_cumulative">"Total topped up  $100.50"</string>
+
+    <string name="toast_refresh_done">"Refreshed  %1$s"</string>
+    <string name="toast_refresh_done_no_value">Refreshed</string>
+    <string name="toast_no_key">Set your API key</string>
+    <string name="toast_key_rejected">The API key was rejected and removed</string>
+    <string name="toast_forbidden">This key cannot read credits</string>
+    <string name="toast_network_error">Could not refresh: network error</string>
+    <string name="toast_response_error">Could not refresh: bad response</string>
+
+    <string name="start_page_credits">Credits</string>
+    <string name="start_page_logs">Logs</string>
+    <string name="start_page_activity">Activity</string>
+
+    <string name="interval_disabled">Off</string>
+    <string name="interval_15">15 minutes</string>
+    <string name="interval_30">30 minutes</string>
+    <string name="interval_1h">1 hour</string>
+    <string name="interval_3h">3 hours</string>
+    <string name="interval_6h">6 hours</string>
+    <string name="interval_12h">12 hours</string>
+    <string name="interval_24h">24 hours</string>
+
+    <string name="settings_title">OpenRouter widget settings</string>
+    <string name="settings_api_key">OpenRouter API key</string>
+    <string name="settings_key_saved">API key saved</string>
+    <string name="settings_current_key">Saved key</string>
+    <string name="settings_keep_key">Keep this key</string>
+    <string name="settings_change_key">Change key</string>
+    <string name="settings_key_hint">sk-or-…</string>
+    <string name="settings_show">Show</string>
+    <string name="settings_hide">Hide</string>
+    <string name="settings_save">Confirm and save</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_enter_new_key">Enter a new API key</string>
+    <string name="settings_invalid_key">Enter a valid sk-or- API key</string>
+    <string name="settings_key_stored">API key saved. Refreshing started.</string>
+    <string name="settings_key_kept">Keeping the existing API key</string>
+    <string name="settings_auto_refresh">Auto refresh</string>
+    <string name="settings_start_page">App start page</string>
+    <string name="settings_battery_note">Refresh timing can be delayed while the device is in power saving mode.</string>
+    <string name="settings_toast_checkbox">Show a toast when a refresh finishes</string>
+    <string name="settings_toast_denied">Notification permission is off, so toasts stay hidden</string>
+    <string name="settings_open_system_settings">Open system settings</string>
+    <string name="settings_refresh_now">Refresh now</string>
+    <string name="settings_refresh_requested">Refresh requested</string>
+    <string name="custom_tab_settings_menu">App settings</string>
 </resources>

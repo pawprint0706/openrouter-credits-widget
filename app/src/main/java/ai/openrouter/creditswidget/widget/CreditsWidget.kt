@@ -19,6 +19,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import ai.openrouter.creditswidget.MainActivity
+import ai.openrouter.creditswidget.R
 import ai.openrouter.creditswidget.SettingsActivity
 import ai.openrouter.creditswidget.data.EncryptedKeyStore
 import ai.openrouter.creditswidget.data.WidgetStore
@@ -29,24 +30,27 @@ class CreditsWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val state = WidgetStore(context).state()
         val hasKey = EncryptedKeyStore(context).exists()
+        // Resolve strings before composing: the render must follow the locale of the device it is drawn on.
+        val primaryText = widgetPrimaryText(state.snapshot, state.status) { context.getString(it.labelRes) }
+        val cumulativeText = state.snapshot?.let { context.getString(R.string.widget_cumulative, it.dollars(it.totalCredits)) }
         provideContent {
             val bodyAction = if (hasKey) actionRunCallback<RefreshAction>() else actionStartActivity<SettingsActivity>()
-            val main = ColorProvider(ai.openrouter.creditswidget.R.color.widget_primary)
-            val muted = ColorProvider(ai.openrouter.creditswidget.R.color.widget_muted)
-            val divider = ColorProvider(ai.openrouter.creditswidget.R.color.widget_divider)
+            val main = ColorProvider(R.color.widget_primary)
+            val muted = ColorProvider(R.color.widget_muted)
+            val divider = ColorProvider(R.color.widget_divider)
             Column(
-                modifier = GlanceModifier.fillMaxSize().background(imageProvider = ImageProvider(ai.openrouter.creditswidget.R.drawable.widget_background)).appWidgetBackground().clickable(bodyAction).padding(horizontal = 10.dp, vertical = 4.dp),
+                modifier = GlanceModifier.fillMaxSize().background(imageProvider = ImageProvider(R.drawable.widget_background)).appWidgetBackground().clickable(bodyAction).padding(horizontal = 10.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.Vertical.CenterVertically,
             ) {
                 Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Vertical.Bottom) {
-                    Image(provider = ImageProvider(ai.openrouter.creditswidget.R.drawable.openrouter_logo), contentDescription = "OpenRouter", modifier = GlanceModifier.size(36.dp).clickable(actionStartActivity<MainActivity>()))
+                    Image(provider = ImageProvider(R.drawable.openrouter_logo), contentDescription = "OpenRouter", modifier = GlanceModifier.size(36.dp).clickable(actionStartActivity<MainActivity>()))
                     Spacer(GlanceModifier.width(10.dp))
                     Box(GlanceModifier.width(1.dp).height(36.dp).background(divider)) {}
                     Spacer(GlanceModifier.width(10.dp))
-                    Text(widgetPrimaryText(state.snapshot, state.message), style = TextStyle(color = main, fontWeight = FontWeight.Bold, fontSize = 28.sp), modifier = GlanceModifier.defaultWeight(), maxLines = 1)
-                    if (state.snapshot != null) {
+                    Text(primaryText, style = TextStyle(color = main, fontWeight = FontWeight.Bold, fontSize = 28.sp), modifier = GlanceModifier.defaultWeight(), maxLines = 1)
+                    if (cumulativeText != null) {
                         Spacer(GlanceModifier.width(8.dp))
-                        Text("누적 충전  " + state.snapshot.dollars(state.snapshot.totalCredits), style = TextStyle(color = muted, fontSize = 14.sp), maxLines = 1)
+                        Text(cumulativeText, style = TextStyle(color = muted, fontSize = 14.sp), maxLines = 1)
                     }
                 }
             }

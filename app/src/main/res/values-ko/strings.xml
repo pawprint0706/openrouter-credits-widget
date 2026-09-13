@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">현재 OpenRouter 잔액과 누적 충전액</string>
+    <string name="widget_cumulative">"누적 충전  %1$s"</string>
+    <string name="widget_status_needs_key">API 키 설정 필요</string>
+    <string name="widget_status_offline">오프라인 또는 오류</string>
+    <string name="widget_status_different_key">다른 키 필요</string>
+    <string name="widget_status_response_error">응답 오류</string>
+    <string name="widget_preview_cumulative">"누적 충전  $100.50"</string>
+
+    <string name="toast_refresh_done">"갱신 완료  %1$s"</string>
+    <string name="toast_refresh_done_no_value">갱신 완료</string>
+    <string name="toast_no_key">API 키를 설정하세요</string>
+    <string name="toast_key_rejected">API 키가 거부되어 삭제되었습니다</string>
+    <string name="toast_forbidden">이 키로는 크레딧을 읽을 수 없습니다</string>
+    <string name="toast_network_error">네트워크 오류로 갱신하지 못했습니다</string>
+    <string name="toast_response_error">응답 오류로 갱신하지 못했습니다</string>
+
+    <string name="start_page_credits">크레딧</string>
+    <string name="start_page_logs">로그</string>
+    <string name="start_page_activity">활동</string>
+
+    <string name="interval_disabled">사용 안 함</string>
+    <string name="interval_15">15분</string>
+    <string name="interval_30">30분</string>
+    <string name="interval_1h">1시간</string>
+    <string name="interval_3h">3시간</string>
+    <string name="interval_6h">6시간</string>
+    <string name="interval_12h">12시간</string>
+    <string name="interval_24h">24시간</string>
+
+    <string name="settings_title">OpenRouter 위젯 설정</string>
+    <string name="settings_api_key">OpenRouter API 키</string>
+    <string name="settings_key_saved">API 키 저장됨</string>
+    <string name="settings_current_key">현재 저장된 키</string>
+    <string name="settings_keep_key">현재 키 유지</string>
+    <string name="settings_change_key">키 변경하기</string>
+    <string name="settings_key_hint">sk-or-…</string>
+    <string name="settings_show">표시</string>
+    <string name="settings_hide">숨김</string>
+    <string name="settings_save">확인 및 저장</string>
+    <string name="settings_cancel">취소</string>
+    <string name="settings_enter_new_key">새 API 키를 입력하세요</string>
+    <string name="settings_invalid_key">올바른 sk-or- API 키를 입력하세요</string>
+    <string name="settings_key_stored">API 키를 저장하고 갱신을 시작했습니다</string>
+    <string name="settings_key_kept">기존 API 키를 유지합니다</string>
+    <string name="settings_auto_refresh">자동 새로고침</string>
+    <string name="settings_start_page">앱 시작 페이지</string>
+    <string name="settings_battery_note">절전 모드에서는 새로고침 시각이 지연될 수 있습니다.</string>
+    <string name="settings_toast_checkbox">새로고침 완료를 토스트로 표시</string>
+    <string name="settings_toast_denied">알림 권한이 꺼져 있어 토스트가 표시되지 않습니다</string>
+    <string name="settings_open_system_settings">시스템 설정 열기</string>
+    <string name="settings_refresh_now">지금 새로고침</string>
+    <string name="settings_refresh_requested">지금 갱신을 요청했습니다</string>
+    <string name="custom_tab_settings_menu">앱 설정</string>
+</resources>

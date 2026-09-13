@@ -14,10 +14,12 @@ import androidx.work.WorkerParameters
 import androidx.work.Constraints
 import androidx.work.workDataOf
 import androidx.glance.appwidget.updateAll
+import ai.openrouter.creditswidget.R
 import ai.openrouter.creditswidget.data.CreditsRepository
 import ai.openrouter.creditswidget.data.WidgetStore
 import ai.openrouter.creditswidget.domain.RefreshInterval
 import ai.openrouter.creditswidget.domain.RefreshResult
+import ai.openrouter.creditswidget.domain.WidgetStatus
 import ai.openrouter.creditswidget.widget.CreditsWidget
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +42,7 @@ class CreditsRefreshWorker(appContext: Context, params: WorkerParameters) : Coro
             throw error
         } catch (_: Exception) {
             try {
-                store.setStatus("오프라인 또는 오류")
+                store.setStatus(WidgetStatus.OFFLINE)
                 CreditsWidget().updateAll(applicationContext)
             } catch (_: Exception) {
                 // WorkManager records the failure; the next successful refresh re-renders the widget.
@@ -51,12 +53,12 @@ class CreditsRefreshWorker(appContext: Context, params: WorkerParameters) : Coro
 
     private suspend fun showToast(result: RefreshResult) {
         val message = when (result) {
-            RefreshResult.Success -> WidgetStore(applicationContext).state().snapshot?.let { "갱신 완료  " + it.dollars(it.remainingCredits) } ?: "갱신 완료"
-            RefreshResult.NoKey -> "API 키를 설정하세요"
-            RefreshResult.Unauthorized -> "API 키가 거부되어 삭제되었습니다"
-            RefreshResult.Forbidden -> "이 키로는 크레딧을 읽을 수 없습니다"
-            RefreshResult.Retryable -> "네트워크 오류로 갱신하지 못했습니다"
-            RefreshResult.InvalidResponse -> "응답 오류로 갱신하지 못했습니다"
+            RefreshResult.Success -> WidgetStore(applicationContext).state().snapshot?.let { applicationContext.getString(R.string.toast_refresh_done, it.dollars(it.remainingCredits)) } ?: applicationContext.getString(R.string.toast_refresh_done_no_value)
+            RefreshResult.NoKey -> applicationContext.getString(R.string.toast_no_key)
+            RefreshResult.Unauthorized -> applicationContext.getString(R.string.toast_key_rejected)
+            RefreshResult.Forbidden -> applicationContext.getString(R.string.toast_forbidden)
+            RefreshResult.Retryable -> applicationContext.getString(R.string.toast_network_error)
+            RefreshResult.InvalidResponse -> applicationContext.getString(R.string.toast_response_error)
         }
         withContext(Dispatchers.Main) { Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show() }
     }

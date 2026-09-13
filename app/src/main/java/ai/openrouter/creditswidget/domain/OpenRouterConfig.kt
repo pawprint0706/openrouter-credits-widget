@@ -1,10 +1,13 @@
 package ai.openrouter.creditswidget.domain
 
-enum class StartPage(val url: String, val label: String) {
-    CREDITS("https://openrouter.ai/settings/credits", "크레딧"), LOGS("https://openrouter.ai/logs", "로그"), ACTIVITY("https://openrouter.ai/activity", "활동")
+import androidx.annotation.StringRes
+import ai.openrouter.creditswidget.R
+
+enum class StartPage(val url: String, @StringRes val labelRes: Int) {
+    CREDITS("https://openrouter.ai/settings/credits", R.string.start_page_credits), LOGS("https://openrouter.ai/logs", R.string.start_page_logs), ACTIVITY("https://openrouter.ai/activity", R.string.start_page_activity)
 }
-enum class RefreshInterval(val minutes: Long, val label: String) {
-    DISABLED(0, "사용 안 함"), MINUTES_15(15, "15분"), MINUTES_30(30, "30분"), HOUR_1(60, "1시간"), HOURS_3(180, "3시간"), HOURS_6(360, "6시간"), HOURS_12(720, "12시간"), HOURS_24(1440, "24시간")
+enum class RefreshInterval(val minutes: Long, @StringRes val labelRes: Int) {
+    DISABLED(0, R.string.interval_disabled), MINUTES_15(15, R.string.interval_15), MINUTES_30(30, R.string.interval_30), HOUR_1(60, R.string.interval_1h), HOURS_3(180, R.string.interval_3h), HOURS_6(360, R.string.interval_6h), HOURS_12(720, R.string.interval_12h), HOURS_24(1440, R.string.interval_24h)
 }
 object ApiKeyNormalizer {
     private val pattern = Regex("^sk-or-[A-Za-z0-9_-]+$")

@@ -7,6 +7,7 @@ import ai.openrouter.creditswidget.domain.ApiKeyNormalizer
 import ai.openrouter.creditswidget.domain.CreditsSnapshot
 import ai.openrouter.creditswidget.domain.RefreshInterval
 import ai.openrouter.creditswidget.domain.StartPage
+import ai.openrouter.creditswidget.domain.WidgetStatus
 import org.junit.Assert.*
 import org.junit.Test
 import java.math.BigDecimal
@@ -17,11 +18,12 @@ class OpenRouterUnitTest {
     @Test fun pastedAuthorizationKeyIsNormalized() { val key = "sk-or-abcdefghijklmnopqrstuvwxyz123456"; assertEquals(key, ApiKeyNormalizer.normalize(" Authorization: Bearer '$key'; ")); assertNull(ApiKeyNormalizer.normalize("bearer not-a-key")) }
     @Test fun savedApiKeyIsMaskedWithoutExposingItsBody() { assertEquals("sk-or-v1-••••••••3456", ApiKeyMasker.mask("sk-or-v1-abcdefghijklmnopqrstuvwxyz123456")); assertEquals("sk-or-mgmt-••••••••WXYZ", ApiKeyMasker.mask("sk-or-mgmt-abcdefghijklmnopqrstuvWXYZ")) }
     @Test fun urlsAndPeriodicMinimumAreStable() { assertEquals("https://openrouter.ai/settings/credits", StartPage.CREDITS.url); assertEquals("https://openrouter.ai/logs", StartPage.LOGS.url); assertEquals(15, RefreshInterval.MINUTES_15.minutes); assertEquals(0, RefreshInterval.DISABLED.minutes) }
-    @Test fun lastKnownBalanceOutranksEveryStatusMessage() {
+    @Test fun lastKnownBalanceOutranksEveryStatusLabel() {
         val snapshot = CreditsSnapshot(BigDecimal("100.50"), BigDecimal("25.75"), 1)
-        assertEquals("$74.75", widgetPrimaryText(snapshot, "오프라인 또는 오류"))
-        assertEquals("$74.75", widgetPrimaryText(snapshot, null))
-        assertEquals("다른 키 필요", widgetPrimaryText(null, "다른 키 필요"))
-        assertEquals("API 키 설정 필요", widgetPrimaryText(null, null))
+        val label: (WidgetStatus) -> String = { it.name }
+        assertEquals("$74.75", widgetPrimaryText(snapshot, WidgetStatus.OFFLINE, label))
+        assertEquals("$74.75", widgetPrimaryText(snapshot, null, label))
+        assertEquals("DIFFERENT_KEY", widgetPrimaryText(null, WidgetStatus.DIFFERENT_KEY, label))
+        assertEquals("NEEDS_KEY", widgetPrimaryText(null, null, label))
     }
 }
